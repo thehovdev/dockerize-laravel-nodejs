@@ -1,0 +1,47 @@
+version: "3.9"
+services:   
+    db:
+        container_name: db
+        image: mysql:latest
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        ports: 
+          - 3306:3306
+        volumes:
+            - mysqldata:/var/lib/mysql:rw
+            - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+            MYSQL_DATABASE: admin_insure
+            MYSQL_USER: hovdev
+            MYSQL_PASSWORD: mylib12
+    laravel:
+        container_name: laravel
+        build:
+            context: .
+            dockerfile: Dockerfile.be
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - .:/var/www/html
+            - /var/www/html/vendor
+        depends_on: 
+            - db
+    node:
+        container_name: node
+        build: 
+            context: .
+            dockerfile: Dockerfile.fe
+        ports:
+            - 3000:3000
+            - 4488:4488
+        volumes:
+            - .:/src
+            - /src/node_modules
+        depends_on: 
+            - db
+        command: npm run dev
+volumes:
+    mysqldata: 
+        driver: local

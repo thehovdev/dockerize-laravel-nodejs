@@ -1,0 +1,7 @@
+FROM node:10-stretch    
+WORKDIR /src
+COPY . /src
+RUN apt-get update && apt-get install -y git 
+RUN git config --global url."https://".insteadOf git://
+RUN npm install --verbose && npm install --global gulp-cli
+EXPOSE 3000 4488
